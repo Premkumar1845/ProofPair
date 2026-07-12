@@ -245,23 +245,72 @@ export default function Sandbox({
                       <div>Ref: <span style={{ color: '#fff' }}>{paymentChallenge.reference || 'N/A'}</span></div>
                     </div>
 
-                    {!signedTxHash ? (
-                      <Magnet range={30} style={{ display: 'block', width: '100%' }}>
-                        <button 
-                          onClick={signPayment}
-                          className="btn-secondary" 
-                          style={{ borderColor: 'var(--accent-amber)', color: '#fff', width: '100%', height: '36px', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px' }}
-                          disabled={isSigning}
-                        >
-                          {isSigning ? <RefreshCw size={14} className="spin-animation" /> : <Fingerprint size={14} />}
-                          {isSigning ? 'Signing in Wallet...' : (connectedWallet ? `Sign Payment using ${connectedWallet}` : `Sign & Pay ${selectedEndpoint.priceAda} ADA`)}
-                        </button>
-                      </Magnet>
-                    ) : (
-                      <div style={{ display: 'flex', alignItems: 'center', gap: '8px', color: 'var(--accent-green)', fontSize: '0.75rem', fontWeight: '600' }}>
-                        <CheckCircle size={14} /> Transaction signature active in headers.
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                      {!signedTxHash ? (
+                        <Magnet range={30} style={{ display: 'block', width: '100%' }}>
+                          <button 
+                            onClick={signPayment}
+                            className="btn-secondary" 
+                            style={{ borderColor: 'var(--accent-amber)', color: '#fff', width: '100%', height: '36px', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px' }}
+                            disabled={isSigning}
+                          >
+                            {isSigning ? <RefreshCw size={14} className="spin-animation" /> : <Fingerprint size={14} />}
+                            {isSigning ? 'Signing in Wallet...' : (connectedWallet ? `Sign Payment using ${connectedWallet}` : `Sign & Pay ${selectedEndpoint.priceAda} ADA`)}
+                          </button>
+                        </Magnet>
+                      ) : (
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '8px', color: 'var(--accent-green)', fontSize: '0.75rem', fontWeight: '600' }}>
+                          <CheckCircle size={14} /> Transaction signature active in headers.
+                        </div>
+                      )}
+
+                      <div style={{ borderTop: '1px solid rgba(255,255,255,0.08)', paddingTop: '8px', marginTop: '4px' }}>
+                        <label style={{ fontSize: '0.68rem', textTransform: 'uppercase', color: 'var(--fg-muted)', display: 'block', marginBottom: '4px', fontFamily: 'var(--font-mono)' }}>
+                          Or Paste Test Cardano Tx Hash Manually (Must end in 'c402')
+                        </label>
+                        <div style={{ display: 'flex', gap: '6px' }}>
+                          <input 
+                            type="text" 
+                            placeholder="e.g. 549071c8de15c7824b22c9709a31a90654ee16ad6443bf58cd7a7f68ecaa2930c402"
+                            value={signedTxHash}
+                            onChange={(e) => setSignedTxHash(e.target.value)}
+                            style={{
+                              flex: 1,
+                              backgroundColor: 'var(--bg-color)',
+                              border: '1px solid var(--border-color)',
+                              borderRadius: '4px',
+                              color: 'var(--fg-color)',
+                              padding: '6px 10px',
+                              fontSize: '0.74rem',
+                              outline: 'none',
+                              fontFamily: 'var(--font-numbers)'
+                            }}
+                          />
+                          {signedTxHash && (
+                            <button 
+                              onClick={() => setSignedTxHash('')}
+                              style={{
+                                backgroundColor: 'transparent',
+                                border: '1px solid var(--border-color)',
+                                color: 'var(--accent-red)',
+                                borderRadius: '4px',
+                                padding: '0 8px',
+                                fontSize: '0.7rem',
+                                cursor: 'pointer'
+                              }}
+                            >
+                              Reset
+                            </button>
+                          )}
+                        </div>
+                        <div style={{ fontSize: '0.62rem', color: 'var(--fg-muted)', marginTop: '4px', display: 'flex', gap: '4px', flexDirection: 'column' }}>
+                          <span>💡 Test Hashes (Ends in 'c402'):</span>
+                          <code style={{ color: 'var(--accent-amber)', fontSize: '0.6rem', userSelect: 'all', cursor: 'pointer' }}>
+                            2dc9ad62dc9ad62dc9ad62dc9ad62dc9ad62dc9ad62dc9ad62dc9ad62dc9ad62c402
+                          </code>
+                        </div>
                       </div>
-                    )}
+                    </div>
                   </div>
                 )}
 

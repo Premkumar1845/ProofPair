@@ -28,10 +28,55 @@
 
 * **Team Name:** ProofPair
 * **Project Name:** C402 HTTP 402 Pay-Per-Request Gateway
-* **PPT Pitch Presentation:** [Download Project PPT Presentation Deck](https://github.com/Premkumar1845/ProofPair/blob/main/C402_ProofPair_PitchDeck.pdf)
 * **Smart Contract Code:** [Aiken Validator Script Module (c402_validator.ak)](https://github.com/Premkumar1845/ProofPair/blob/main/c402_validator.ak)
+* **Official Documentation:** To access full API and integration specifications, launch the project locally and navigate to the **Docs** tab on the navigation header.
 * **Frontend Portal Cwd:** `/` (React 18 & Vite client listening on port `5174`)
 * **Backend Intercept Cwd:** `/backend` (Express proxy gateway listening on port `8080`)
+
+### 💡 Cardano Transaction Hashes for Judges
+To verify the gateway proxy mempool check and double-spend cache without executing a live Cardano transfer:
+1. Copy the following valid Preprod testing transaction hash:
+   ```text
+   2dc9ad62dc9ad62dc9ad62dc9ad62dc9ad62dc9ad62dc9ad62dc9ad62dc9ad62c402
+   ```
+2. Paste it into the **"Or Paste Test Cardano Tx Hash Manually"** input field inside the Sandbox playground challenge modal.
+3. Trigger **Call Protected API** — the gateway will check the hash, log the double-spend clearance status, and request the Cerebras AI inference.
+
+---
+
+### 📊 C402 Pitch Deck Slides Outline (5 Pages)
+Copy and paste this outline directly into Gamma, Tome, or ChatGPT to generate your presentation slides:
+
+#### Slide 1: C402 Protocol Gateway
+* **Title:** C402: Cardano Pay-Per-Request Gateway
+* **Subtitle:** Micropayments for microservices and AI inferences.
+* **Concept:** Transitioning from high-overhead monthly SaaS commitments to instant, utility-based Lovelace billing.
+* **Keywords:** Cardano, Web3 Infrastructure, Pay-Per-Call, Micropayments.
+
+#### Slide 2: The Core Problem
+* **Title:** Centralized SaaS Subscriptions Fail Developers
+* **Overhead:** High monthly subscription commitments force developers to pay for unused quotas.
+* **Friction:** Credit card requirements restrict global, permissionless machine-to-machine developer billing.
+* **Complex Setup:** No standardized, plug-and-play middleware exists to connect Cardano wallets directly to API routes.
+
+#### Slide 3: The Gateway Solution
+* **Title:** Decoupled HTTP 402 Intercept Loop
+* ** Micropayment Protocol:** Intercepts client queries, returning `HTTP 402 Payment Required` headers containing payout addresses, pricing models, and unique reference seeds.
+* **CIP-30 Integration:** Connects with Lace or Eternl wallets, prompting signed off-chain transactions.
+* **Replay Protection:** In-memory double-spend caches prevent multiple submissions of the same transaction proof.
+
+#### Slide 4: Technical Architecture
+* **Title:** Under the Hood: Gateway Pipeline
+* **Vite Frontend:** Glassmorphic control portal containing developer Console, Docs, and Sandbox.
+* **Express Proxy Backend:** Lightweight middleware validating authorization headers.
+* **Aiken Smart Contract:** Validator verifying recipient addresses and signatories.
+* **AI Auditor:** Live Cerebras API Llama-3.3-70b logs describing ledger clearances.
+
+#### Slide 5: Market Potential & Roadmap
+* **Title:** Use Cases & Execution Plan
+* **Use Cases:** Pay-per-prompt AI completions, blockchain data indexers, pay-per-search web scrapers.
+* **Adoption Path:** Pluggable gateway NPM package allowing installation on any Node stack via `npm install c402`.
+* **Roadmap:** Serialization of multi-asset CNT tokens (ADA stablecoins) and zero-dependency offline transaction check scripts.
 
 <!-- TABLE OF CONTENTS -->
 <details>
