@@ -30,6 +30,7 @@
 * **Project Name:** C402 HTTP 402 Pay-Per-Request Gateway
 * **Smart Contract Code:** [Aiken Validator Script Module (c402_validator.ak)](https://github.com/Premkumar1845/ProofPair/blob/main/c402_validator.ak)
 * **Official Documentation:** To access full API and integration specifications, launch the project locally and navigate to the **Docs** tab on the navigation header.
+* **Presentation:** https://drive.google.com/drive/folders/1BoKdu_fDpn0qHoszn8SbSdppP0XQ72iT?usp=sharing
 * **Frontend Portal Cwd:** `/` (React 18 & Vite client listening on port `5174`)
 * **Backend Intercept Cwd:** `/backend` (Express proxy gateway listening on port `8080`)
 
