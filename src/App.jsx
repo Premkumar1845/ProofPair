@@ -17,6 +17,22 @@ import {
 } from './c402Engine';
 
 export default function App() {
+  // Theme state: 'dark' | 'light'
+  const [theme, setTheme] = useState(() => localStorage.getItem('c402-theme') || 'dark');
+
+  useEffect(() => {
+    if (theme === 'light') {
+      document.documentElement.classList.add('light');
+    } else {
+      document.documentElement.classList.remove('light');
+    }
+    localStorage.setItem('c402-theme', theme);
+  }, [theme]);
+
+  const toggleTheme = () => {
+    setTheme(prev => prev === 'dark' ? 'light' : 'dark');
+  };
+
   // Navigation state: 'landing' | 'sandbox' | 'dashboard' | 'docs'
   const [currentPage, setCurrentPage] = useState('landing');
   const [isInIframe, setIsInIframe] = useState(false);
@@ -454,6 +470,8 @@ export default function App() {
         walletBalance={walletBalance}
         disconnectWallet={disconnectWallet}
         setShowWalletModal={setShowWalletModal}
+        theme={theme}
+        toggleTheme={toggleTheme}
       />
 
       {currentPage === 'landing' && (

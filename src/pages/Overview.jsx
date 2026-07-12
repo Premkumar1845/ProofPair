@@ -57,13 +57,13 @@ export default function Overview({ setCurrentPage }) {
       </section>
 
       {/* Value Grid Section */}
-      <section className="border-bottom-layout" style={{ padding: '60px 0', backgroundColor: '#050505' }}>
+      <section className="border-bottom-layout" style={{ padding: '60px 0', backgroundColor: 'transparent' }}>
         <div className="container-custom">
-          <h2 style={{ fontSize: '2.5rem', color: '#fff', textAlign: 'center', marginBottom: '40px' }}>
+          <h2 style={{ fontSize: '2.5rem', color: 'var(--fg-color)', textAlign: 'center', marginBottom: '40px' }}>
             Why charge per-call on <span className="font-serif-italic" style={{ color: 'var(--fg-muted)' }}>Cardano?</span>
           </h2>
 
-          <div className="soldiff-grid border-layout" style={{ borderRadius: '8px', overflow: 'hidden', backgroundColor: '#000' }}>
+          <div className="soldiff-grid border-layout" style={{ borderRadius: '8px', overflow: 'hidden', backgroundColor: 'var(--card-bg)' }}>
             
             <div className="soldiff-col-4 border-right-layout">
               <SpotlightCard style={{ padding: '32px', height: '100%' }}>
@@ -100,25 +100,25 @@ export default function Overview({ setCurrentPage }) {
       </section>
 
       {/* Live Statistics Banner */}
-      <section className="border-bottom-layout" style={{ padding: '40px 0', backgroundColor: '#030303' }}>
+      <section className="border-bottom-layout" style={{ padding: '40px 0', backgroundColor: 'transparent' }}>
         <div className="container-custom" style={{ display: 'flex', justifyContent: 'space-around', alignItems: 'center', flexWrap: 'wrap', gap: '20px' }}>
           
           <div style={{ textAlign: 'center' }}>
-            <div style={{ fontSize: '2.5rem', fontWeight: '700', fontFamily: 'var(--font-mono)' }}>
+            <div style={{ fontSize: '2.5rem', fontWeight: '700', fontFamily: 'var(--font-numbers)' }}>
               <ShinyText text="< 900ms" speed={2} />
             </div>
             <div style={{ fontSize: '0.75rem', color: 'var(--fg-muted)', textTransform: 'uppercase', marginTop: '4px' }}>Avg Mempool Verification</div>
           </div>
           
           <div style={{ textAlign: 'center' }}>
-            <div style={{ fontSize: '2.5rem', fontWeight: '700', fontFamily: 'var(--font-mono)' }}>
+            <div style={{ fontSize: '2.5rem', fontWeight: '700', fontFamily: 'var(--font-numbers)' }}>
               <ShinyText text="0.17 ADA" speed={2.5} />
             </div>
             <div style={{ fontSize: '0.75rem', color: 'var(--fg-muted)', textTransform: 'uppercase', marginTop: '4px' }}>Standard Ledger Fee</div>
           </div>
           
           <div style={{ textAlign: 'center' }}>
-            <div style={{ fontSize: '2.5rem', fontWeight: '700', fontFamily: 'var(--font-mono)' }}>
+            <div style={{ fontSize: '2.5rem', fontWeight: '700', fontFamily: 'var(--font-numbers)' }}>
               <ShinyText text="100%" speed={3} />
             </div>
             <div style={{ fontSize: '0.75rem', color: 'var(--fg-muted)', textTransform: 'uppercase', marginTop: '4px' }}>eUTxO Transaction Determinism</div>
@@ -128,11 +128,11 @@ export default function Overview({ setCurrentPage }) {
       </section>
 
       {/* Protocol Architecture Workflow (Scroll down explaining section) */}
-      <section className="border-bottom-layout" style={{ padding: '80px 0', backgroundColor: '#050505' }}>
+      <section className="border-bottom-layout" style={{ padding: '80px 0', backgroundColor: 'transparent' }}>
         <div className="container-custom">
           
           <div style={{ textAlign: 'center', marginBottom: '50px' }}>
-            <h2 style={{ fontSize: '2.5rem', color: '#fff', marginBottom: '12px' }}>
+            <h2 style={{ fontSize: '2.5rem', color: 'var(--fg-color)', marginBottom: '12px' }}>
               How the C402 Protocol <span className="font-serif-italic" style={{ color: 'var(--fg-muted)' }}>Operates</span>
             </h2>
             <p style={{ color: 'var(--fg-muted)', fontSize: '0.95rem', maxWidth: '600px', margin: '0 auto' }}>
@@ -140,12 +140,12 @@ export default function Overview({ setCurrentPage }) {
             </p>
           </div>
 
-          <div className="soldiff-grid border-layout" style={{ borderRadius: '8px', overflow: 'hidden', backgroundColor: '#000' }}>
+          <div className="soldiff-grid border-layout" style={{ borderRadius: '8px', overflow: 'hidden', backgroundColor: 'var(--card-bg)' }}>
             
             {/* Step 1 */}
             <div className="soldiff-col-3 border-right-layout" style={{ padding: '24px', display: 'flex', flexDirection: 'column', gap: '12px' }}>
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                <span className="font-mono-text" style={{ color: 'var(--accent-green)', fontWeight: '700' }}>01</span>
+                <span style={{ color: 'var(--accent-green)', fontFamily: 'var(--font-bitmap)', fontSize: '2.5rem', lineHeight: '1', fontWeight: '400' }}>01</span>
                 <span style={{ fontSize: '0.62rem', backgroundColor: 'rgba(255,255,255,0.03)', border: '1px solid var(--border-color)', padding: '2px 8px', borderRadius: '4px', textTransform: 'uppercase', color: 'var(--fg-muted)' }}>Request</span>
               </div>
               <h4 style={{ fontSize: '1.05rem', color: '#fff', fontWeight: '600' }}>HTTP 402 Issued</h4>
@@ -157,7 +157,7 @@ export default function Overview({ setCurrentPage }) {
             {/* Step 2 */}
             <div className="soldiff-col-3 border-right-layout" style={{ padding: '24px', display: 'flex', flexDirection: 'column', gap: '12px' }}>
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                <span className="font-mono-text" style={{ color: 'var(--accent-amber)', fontWeight: '700' }}>02</span>
+                <span style={{ color: 'var(--accent-amber)', fontFamily: 'var(--font-bitmap)', fontSize: '2.5rem', lineHeight: '1', fontWeight: '400' }}>02</span>
                 <span style={{ fontSize: '0.62rem', backgroundColor: 'rgba(255,255,255,0.03)', border: '1px solid var(--border-color)', padding: '2px 8px', borderRadius: '4px', textTransform: 'uppercase', color: 'var(--fg-muted)' }}>Wallet</span>
               </div>
               <h4 style={{ fontSize: '1.05rem', color: '#fff', fontWeight: '600' }}>CIP-30 Signature</h4>
@@ -169,7 +169,7 @@ export default function Overview({ setCurrentPage }) {
             {/* Step 3 */}
             <div className="soldiff-col-3 border-right-layout" style={{ padding: '24px', display: 'flex', flexDirection: 'column', gap: '12px' }}>
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                <span className="font-mono-text" style={{ color: 'var(--accent-red)', fontWeight: '700' }}>03</span>
+                <span style={{ color: 'var(--accent-red)', fontFamily: 'var(--font-bitmap)', fontSize: '2.5rem', lineHeight: '1', fontWeight: '400' }}>03</span>
                 <span style={{ fontSize: '0.62rem', backgroundColor: 'rgba(255,255,255,0.03)', border: '1px solid var(--border-color)', padding: '2px 8px', borderRadius: '4px', textTransform: 'uppercase', color: 'var(--fg-muted)' }}>Gateway</span>
               </div>
               <h4 style={{ fontSize: '1.05rem', color: '#fff', fontWeight: '600' }}>Mempool Audit</h4>
@@ -181,7 +181,7 @@ export default function Overview({ setCurrentPage }) {
             {/* Step 4 */}
             <div className="soldiff-col-3" style={{ padding: '24px', display: 'flex', flexDirection: 'column', gap: '12px' }}>
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                <span className="font-mono-text" style={{ color: 'var(--accent-green)', fontWeight: '700' }}>04</span>
+                <span style={{ color: 'var(--accent-green)', fontFamily: 'var(--font-bitmap)', fontSize: '2.5rem', lineHeight: '1', fontWeight: '400' }}>04</span>
                 <span style={{ fontSize: '0.62rem', backgroundColor: 'rgba(255,255,255,0.03)', border: '1px solid var(--border-color)', padding: '2px 8px', borderRadius: '4px', textTransform: 'uppercase', color: 'var(--fg-muted)' }}>AI Release</span>
               </div>
               <h4 style={{ fontSize: '1.05rem', color: '#fff', fontWeight: '600' }}>Cerebras Llama-3</h4>
@@ -196,16 +196,16 @@ export default function Overview({ setCurrentPage }) {
       </section>
 
       {/* Developer Terminal Integration Section */}
-      <section style={{ padding: '80px 0', backgroundColor: '#030303' }}>
+      <section style={{ padding: '80px 0', backgroundColor: 'transparent' }}>
         <div className="container-custom">
-          <div className="soldiff-grid border-layout" style={{ borderRadius: '8px', overflow: 'hidden', backgroundColor: '#000' }}>
+          <div className="soldiff-grid border-layout" style={{ borderRadius: '8px', overflow: 'hidden', backgroundColor: 'var(--card-bg)' }}>
             
             {/* Left Box: Code snippets description */}
             <div className="soldiff-col-5 border-right-layout" style={{ padding: '40px' }}>
               <div style={{ display: 'flex', alignItems: 'center', gap: '6px', color: 'var(--accent-green)', fontSize: '0.75rem', fontWeight: '700', textTransform: 'uppercase', fontFamily: 'var(--font-mono)', marginBottom: '16px' }}>
                 <Terminal size={14} /> Zero-Friction Middleware
               </div>
-              <h3 style={{ fontSize: '2.2rem', color: '#fff', marginBottom: '16px', lineHeight: '1.1' }}>
+              <h3 style={{ fontSize: '2.2rem', color: 'var(--fg-color)', marginBottom: '16px', lineHeight: '1.1' }}>
                 Drop C402 into <span className="font-serif-italic" style={{ color: 'var(--fg-muted)' }}>any Express stack</span>
               </h3>
               <p style={{ fontSize: '0.85rem', color: 'var(--fg-muted)', lineHeight: '1.6', marginBottom: '24px' }}>
@@ -222,7 +222,7 @@ export default function Overview({ setCurrentPage }) {
             </div>
 
             {/* Right Box: Terminal preview */}
-            <div className="soldiff-col-7" style={{ backgroundColor: '#000', position: 'relative' }}>
+            <div className="soldiff-col-7" style={{ backgroundColor: 'var(--card-bg)', position: 'relative' }}>
               <SpotlightCard style={{ height: '100%', width: '100%', padding: '30px' }}>
                 <div style={{ display: 'flex', gap: '6px', marginBottom: '16px' }}>
                   <span style={{ width: '8px', height: '8px', backgroundColor: 'var(--accent-red)', borderRadius: '50%' }} />

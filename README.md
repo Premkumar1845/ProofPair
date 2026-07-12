@@ -15,7 +15,7 @@
 <br />
 <div align="center">
   <a href="https://github.com/Premkumar1845/ProofPair.git">
-    <img src="dist/favicon.ico" alt="Logo" width="80" height="80" style="border-radius: 50%;">
+    <img src="public/logo-dark.png" alt="Logo" width="120" height="120" style="border-radius: 50%; box-shadow: 0 4px 20px rgba(0,0,0,0.15);">
   </a>
 
   <h3 align="center">C402 Protocol Gateway</h3>
@@ -33,6 +33,16 @@
     <a href="https://github.com/Premkumar1845/ProofPair.git/issues">Request Feature</a>
   </p>
 </div>
+
+<!-- HACKATHON SUBMISSION DETAILS -->
+## IndiaCodex 2026 Hackathon Submission
+
+* **Team Name:** ProofPair
+* **Project Name:** C402 HTTP 402 Pay-Per-Request Gateway
+* **PPT Pitch Presentation:** [Download Project PPT Presentation Deck](https://github.com/Premkumar1845/ProofPair/blob/main/C402_ProofPair_PitchDeck.pdf)
+* **Smart Contract Code:** [Aiken Validator Script Module (c402_validator.ak)](https://github.com/Premkumar1845/ProofPair/blob/main/c402_validator.ak)
+* **Frontend Portal Cwd:** `/` (React 18 & Vite client listening on port `5174`)
+* **Backend Intercept Cwd:** `/backend` (Express proxy gateway listening on port `8080`)
 
 <!-- TABLE OF CONTENTS -->
 <details>

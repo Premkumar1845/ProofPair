@@ -73,7 +73,7 @@ export default function Sandbox({
   };
 
   return (
-    <section className="border-bottom-layout" style={{ backgroundColor: '#050505', padding: '40px 0' }}>
+    <section className="border-bottom-layout" style={{ backgroundColor: 'transparent', padding: '40px 0' }}>
       <div className="container-custom">
         
         <div style={{ marginBottom: '24px', display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end', flexWrap: 'wrap', gap: '12px' }}>
@@ -95,7 +95,7 @@ export default function Sandbox({
           </div>
         </div>
 
-        <div className="soldiff-grid border-layout" style={{ borderRadius: '8px', overflow: 'hidden', backgroundColor: '#000' }}>
+        <div className="soldiff-grid border-layout" style={{ borderRadius: '8px', overflow: 'hidden', backgroundColor: 'var(--card-bg)' }}>
           
           {/* Left Side: Client Console */}
           <div className="soldiff-col-5 border-right-layout" style={{ backgroundColor: 'rgba(255,255,255,0.002)', position: 'relative' }}>
@@ -163,10 +163,10 @@ export default function Sandbox({
                     onChange={handleEndpointChange}
                     style={{
                       width: '100%',
-                      backgroundColor: '#000',
+                      backgroundColor: 'var(--bg-color)',
                       border: '1px solid var(--border-color)',
                       borderRadius: '4px',
-                      color: '#fff',
+                      color: 'var(--fg-color)',
                       padding: '10px',
                       fontSize: '0.8rem',
                       outline: 'none',
@@ -197,7 +197,7 @@ export default function Sandbox({
                   <label style={{ fontSize: '0.75rem', textTransform: 'uppercase', color: 'var(--fg-muted)', display: 'block', marginBottom: '6px', fontFamily: 'var(--font-mono)' }}>
                     Active Headers
                   </label>
-                  <div style={{ backgroundColor: '#09090b', border: '1px solid var(--border-color)', borderRadius: '4px', padding: '10px 14px', fontFamily: 'var(--font-mono)', fontSize: '0.75rem', color: '#a1a1aa' }}>
+                  <div style={{ backgroundColor: 'var(--bg-color)', border: '1px solid var(--border-color)', borderRadius: '4px', padding: '10px 14px', fontFamily: 'var(--font-mono)', fontSize: '0.75rem', color: 'var(--fg-muted)' }}>
                     <div>Accept: application/json</div>
                     {requestHeaders['Authorization'] && requestHeaders['Authorization'].split(' ')[1] && (
                       <div style={{ color: 'var(--accent-green)', marginTop: '4px', wordBreak: 'break-all' }}>
@@ -239,7 +239,7 @@ export default function Sandbox({
                       Endpoint locked. Connect a wallet in the header and authorize a signature payload to request access.
                     </div>
 
-                    <div style={{ fontSize: '0.7rem', fontFamily: 'var(--font-mono)', display: 'flex', flexDirection: 'column', gap: '4px', color: '#bbb' }}>
+                    <div style={{ fontSize: '0.74rem', fontFamily: 'var(--font-numbers)', display: 'flex', flexDirection: 'column', gap: '4px', color: '#bbb' }}>
                       <div>Merchant: <span style={{ color: '#fff' }}>{paymentChallenge.address ? `${paymentChallenge.address.substring(0, 12)}...${paymentChallenge.address.substring(paymentChallenge.address.length - 8 || 45)}` : 'N/A'}</span></div>
                       <div>Cost: <span style={{ color: '#fff' }}>{paymentChallenge.price || '0'} Lovelaces ({selectedEndpoint.priceAda} ADA)</span></div>
                       <div>Ref: <span style={{ color: '#fff' }}>{paymentChallenge.reference || 'N/A'}</span></div>
@@ -283,11 +283,11 @@ export default function Sandbox({
             <div className="border-bottom-layout" style={{ 
               height: '180px', 
               overflowY: 'auto', 
-              backgroundColor: '#000', 
+              backgroundColor: 'var(--bg-color)', 
               padding: '16px 24px', 
               fontFamily: 'var(--font-mono)', 
               fontSize: '0.75rem',
-              color: '#aaa',
+              color: 'var(--fg-color)',
               display: 'flex',
               flexDirection: 'column',
               gap: '6px'
@@ -325,7 +325,7 @@ export default function Sandbox({
                     </div>
                   ) : (
                     spentDbList.map((hash, i) => (
-                      <div key={i} style={{ display: 'flex', alignItems: 'center', gap: '6px', backgroundColor: '#09090b', border: '1px solid var(--border-color)', padding: '6px 10px', borderRadius: '4px', fontFamily: 'var(--font-mono)', fontSize: '0.68rem', color: '#ccc' }}>
+                      <div key={i} style={{ display: 'flex', alignItems: 'center', gap: '6px', backgroundColor: 'var(--bg-color)', border: '1px solid var(--border-color)', padding: '6px 10px', borderRadius: '4px', fontFamily: 'var(--font-numbers)', fontSize: '0.7rem', color: 'var(--fg-color)' }}>
                         <Database size={10} style={{ color: 'var(--accent-red)' }} />
                         <span style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{hash.substring(0, 18)}...</span>
                       </div>
@@ -356,8 +356,8 @@ export default function Sandbox({
                         </span>
                       </div>
 
-                      <div style={{ backgroundColor: '#09090b', border: '1px solid var(--border-color)', borderRadius: '4px', padding: '12px', maxHeight: '110px', overflowY: 'auto' }}>
-                        <pre style={{ margin: 0, fontSize: '0.72rem', color: '#e4e4e7', fontFamily: 'var(--font-mono)', whiteSpace: 'pre-wrap' }}>
+                      <div style={{ backgroundColor: 'var(--bg-color)', border: '1px solid var(--border-color)', borderRadius: '4px', padding: '12px', maxHeight: '110px', overflowY: 'auto' }}>
+                        <pre style={{ margin: 0, fontSize: '0.72rem', color: 'var(--fg-color)', fontFamily: 'var(--font-mono)', whiteSpace: 'pre-wrap' }}>
                           <code>{JSON.stringify(responseState.data, null, 2)}</code>
                         </pre>
                       </div>

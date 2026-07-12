@@ -15,23 +15,23 @@ export default function Console({
   setNewEpPrice
 }) {
   return (
-    <section className="border-bottom-layout" style={{ backgroundColor: '#050505', padding: '40px 0' }}>
+    <section className="border-bottom-layout" style={{ backgroundColor: 'transparent', padding: '40px 0' }}>
       <div className="container-custom">
         
         <div style={{ marginBottom: '24px' }}>
-          <h2 style={{ fontSize: '2.2rem', color: '#fff', marginBottom: '8px' }}>
-            Developer <span className="font-serif-italic" style={{ color: 'var(--fg-muted)' }}>Console</span>
+          <h2 style={{ fontSize: '2.2rem', color: 'var(--fg-color)', marginBottom: '8px' }}>
+            Developer <span className="font-serif-italic">Console</span>
           </h2>
           <p style={{ color: 'var(--fg-muted)', fontSize: '0.9rem' }}>
             Register new protected APIs, view call logs, and track Lovelace earnings in real-time.
           </p>
         </div>
 
-        <div className="soldiff-grid border-layout" style={{ borderRadius: '8px', overflow: 'hidden' }}>
+        <div className="soldiff-grid border-layout" style={{ borderRadius: '8px', overflow: 'hidden', backgroundColor: 'var(--card-bg)' }}>
           
           {/* Left Side: Register new route form */}
           <div className="soldiff-col-5 border-right-layout" style={{ padding: '24px', backgroundColor: 'rgba(255,255,255,0.002)' }}>
-            <h3 style={{ fontSize: '1.3rem', color: '#fff', marginBottom: '16px', display: 'flex', alignItems: 'center', gap: '8px' }}>
+            <h3 style={{ fontSize: '1.3rem', color: 'var(--fg-color)', marginBottom: '16px', display: 'flex', alignItems: 'center', gap: '8px' }}>
               <Plus size={18} /> Register Protected Route
             </h3>
 
@@ -46,7 +46,7 @@ export default function Console({
                   value={newEpName}
                   onChange={(e) => setNewEpName(e.target.value)}
                   required
-                  style={{ width: '100%', backgroundColor: '#000', border: '1px solid var(--border-color)', borderRadius: '4px', padding: '10px', color: '#fff', fontSize: '0.8rem', outline: 'none' }}
+                  style={{ width: '100%', backgroundColor: 'var(--bg-color)', border: '1px solid var(--border-color)', borderRadius: '4px', padding: '10px', color: 'var(--fg-color)', fontSize: '0.8rem', outline: 'none' }}
                 />
               </div>
 
@@ -60,7 +60,7 @@ export default function Console({
                   value={newEpRoute}
                   onChange={(e) => setNewEpRoute(e.target.value)}
                   required
-                  style={{ width: '100%', backgroundColor: '#000', border: '1px solid var(--border-color)', borderRadius: '4px', padding: '10px', color: '#fff', fontSize: '0.8rem', outline: 'none', fontFamily: 'var(--font-mono)' }}
+                  style={{ width: '100%', backgroundColor: 'var(--bg-color)', border: '1px solid var(--border-color)', borderRadius: '4px', padding: '10px', color: 'var(--fg-color)', fontSize: '0.8rem', outline: 'none', fontFamily: 'var(--font-mono)' }}
                 />
               </div>
 
@@ -74,7 +74,7 @@ export default function Console({
                   value={newEpTarget}
                   onChange={(e) => setNewEpTarget(e.target.value)}
                   required
-                  style={{ width: '100%', backgroundColor: '#000', border: '1px solid var(--border-color)', borderRadius: '4px', padding: '10px', color: '#fff', fontSize: '0.8rem', outline: 'none', fontFamily: 'var(--font-mono)' }}
+                  style={{ width: '100%', backgroundColor: 'var(--bg-color)', border: '1px solid var(--border-color)', borderRadius: '4px', padding: '10px', color: 'var(--fg-color)', fontSize: '0.8rem', outline: 'none', fontFamily: 'var(--font-mono)' }}
                 />
               </div>
 
@@ -89,7 +89,7 @@ export default function Console({
                   value={newEpPrice}
                   onChange={(e) => setNewEpPrice(e.target.value)}
                   required
-                  style={{ width: '100%', backgroundColor: '#000', border: '1px solid var(--border-color)', borderRadius: '4px', padding: '10px', color: '#fff', fontSize: '0.8rem', outline: 'none', fontFamily: 'var(--font-mono)' }}
+                  style={{ width: '100%', backgroundColor: 'var(--bg-color)', border: '1px solid var(--border-color)', borderRadius: '4px', padding: '10px', color: 'var(--fg-color)', fontSize: '0.8rem', outline: 'none', fontFamily: 'var(--font-mono)' }}
                 />
               </div>
 
@@ -107,22 +107,22 @@ export default function Console({
 
             <div style={{ padding: '24px', display: 'flex', flexDirection: 'column', gap: '16px' }}>
               {myEndpoints.map((ep) => (
-                <div key={ep.id} style={{ border: '1px solid var(--border-color)', borderRadius: '6px', padding: '16px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', backgroundColor: 'rgba(255,255,255,0.005)' }}>
+                <div key={ep.id} style={{ border: '1px solid var(--border-color)', borderRadius: '6px', padding: '16px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', backgroundColor: 'var(--bg-color)' }}>
                   <div>
                     <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '4px' }}>
-                      <span style={{ fontSize: '0.9rem', fontWeight: '600', color: '#fff' }}>{ep.name}</span>
-                      <span className="badge-verified" style={{ fontSize: '0.65rem' }}>{ep.priceAda} ADA/call</span>
+                      <span style={{ fontSize: '0.9rem', fontWeight: '600', color: 'var(--fg-color)' }}>{ep.name}</span>
+                      <span className="badge-verified" style={{ fontSize: '0.65rem', fontFamily: 'var(--font-numbers)' }}>{ep.priceAda} ADA/call</span>
                     </div>
                     <div className="font-mono-text" style={{ color: 'var(--fg-muted)', fontSize: '0.72rem', display: 'flex', flexDirection: 'column', gap: '2px' }}>
-                      <div>Route: <span style={{ color: '#fff' }}>{ep.route}</span></div>
-                      <div style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', maxWidth: '280px' }}>Target: <span style={{ color: '#fff' }}>{ep.targetUrl}</span></div>
+                      <div>Route: <span style={{ color: 'var(--fg-color)' }}>{ep.route}</span></div>
+                      <div style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', maxWidth: '280px' }}>Target: <span style={{ color: 'var(--fg-color)' }}>{ep.targetUrl}</span></div>
                     </div>
                   </div>
 
                   <div style={{ textAlign: 'right', display: 'flex', gap: '20px', alignItems: 'center' }}>
                     <div>
-                      <div style={{ fontSize: '1rem', fontWeight: '700', color: 'var(--accent-green)', fontFamily: 'var(--font-mono)' }}>{ep.earnings} ADA</div>
-                      <div style={{ fontSize: '0.65rem', color: 'var(--fg-muted)', textTransform: 'uppercase' }}>{ep.calls} Calls</div>
+                      <div style={{ fontSize: '1rem', fontWeight: '700', color: 'var(--accent-green)', fontFamily: 'var(--font-numbers)' }}>{ep.earnings} ADA</div>
+                      <div style={{ fontSize: '0.65rem', color: 'var(--fg-muted)', textTransform: 'uppercase', fontFamily: 'var(--font-numbers)' }}>{ep.calls} Calls</div>
                     </div>
 
                     <button 

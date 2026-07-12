@@ -4,19 +4,19 @@ import { developerSnippets } from '../c402Engine';
 
 export default function Docs({ codeTab, setCodeTab, copied, handleCopy }) {
   return (
-    <section className="border-bottom-layout" style={{ backgroundColor: '#050505', padding: '40px 0' }}>
+    <section className="border-bottom-layout" style={{ backgroundColor: 'transparent', padding: '40px 0' }}>
       <div className="container-custom">
         
         <div style={{ marginBottom: '24px' }}>
-          <h2 style={{ fontSize: '2.2rem', color: '#fff', marginBottom: '8px' }}>
-            Developer <span className="font-serif-italic" style={{ color: 'var(--fg-muted)' }}>Documentation</span>
+          <h2 style={{ fontSize: '2.2rem', color: 'var(--fg-color)', marginBottom: '8px' }}>
+            Developer <span className="font-serif-italic">Documentation</span>
           </h2>
           <p style={{ color: 'var(--fg-muted)', fontSize: '0.9rem' }}>
             Reference guides, header challenges, and Aiken validator blueprints.
           </p>
         </div>
 
-        <div className="soldiff-grid border-layout" style={{ borderRadius: '8px', overflow: 'hidden' }}>
+        <div className="soldiff-grid border-layout" style={{ borderRadius: '8px', overflow: 'hidden', backgroundColor: 'var(--card-bg)' }}>
           
           {/* Left Side: Text Documentation */}
           <div className="soldiff-col-6 border-right-layout" style={{ padding: '32px', backgroundColor: 'rgba(255,255,255,0.001)' }}>
@@ -27,56 +27,48 @@ export default function Docs({ codeTab, setCodeTab, copied, handleCopy }) {
 
             <div style={{ display: 'flex', flexDirection: 'column', gap: '20px', color: 'var(--fg-muted)', fontSize: '0.85rem', lineHeight: '1.6' }}>
               <div>
-                <h3 style={{ color: '#fff', fontSize: '1.2rem', marginBottom: '8px' }}>1. The Challenge Loop</h3>
+                <h3 style={{ color: 'var(--fg-color)', fontSize: '1.2rem', marginBottom: '8px' }}>1. The Challenge Loop</h3>
                 <p>
-                  When a client requests a C402-protected API without an Authorization header, the proxy returns a challenge containing standard payment headers. The client wallet must construct a transaction matching these parameters:
-                </p>
-                <ul style={{ paddingLeft: '20px', marginTop: '8px', display: 'flex', flexDirection: 'column', gap: '4px' }}>
-                  <li><strong>X-C402-Price:</strong> Lovelaces required (e.g. 100000).</li>
-                  <li><strong>X-C402-Address:</strong> Developer payout staking address.</li>
-                  <li><strong>X-C402-Reference:</strong> Unique tracking UUID.</li>
-                </ul>
-              </div>
-
-              <hr style={{ border: 'none', borderBottom: '1px solid var(--border-color)' }} />
-
-              <div>
-                <h3 style={{ color: '#fff', fontSize: '1.2rem', marginBottom: '8px' }}>2. Replay Mitigation</h3>
-                <p>
-                  Replay attacks are avoided by keeping a high-speed cached list of spent transaction hashes. When a transaction is submitted, the C402 gateway queries the Cardano ledger, validates the outputs, and logs it in the spent database index cache. Any retry of the same hash is blocked with an HTTP 401.
+                  When a client requests a protected endpoint without credentials, the gateway proxy returns an <code>HTTP 402 Payment Required</code> status code along with custom headers containing the merchant address, the cost of the call in Lovelaces, and a unique reference UUID.
                 </p>
               </div>
 
-              <hr style={{ border: 'none', borderBottom: '1px solid var(--border-color)' }} />
+              <div>
+                <h3 style={{ color: 'var(--fg-color)', fontSize: '1.2rem', marginBottom: '8px' }}>2. Signature &amp; Payment Verification</h3>
+                <p>
+                  The client uses a Cardano CIP-30 wallet extension to sign a message containing the reference UUID and the target address. The client then resubmits the request including this signature in the <code>Authorization: Bearer [signature]</code> header.
+                </p>
+              </div>
 
               <div>
-                <h3 style={{ color: '#fff', fontSize: '1.2rem', marginBottom: '8px' }}>3. Mempool Verification</h3>
+                <h3 style={{ color: 'var(--fg-color)', fontSize: '1.2rem', marginBottom: '8px' }}>3. Double-Spend Mitigation</h3>
                 <p>
-                  To bypass Cardano's block times (~20 seconds), C402 inspects the node mempool. Since transactions are deterministic under the eUTxO model, a transaction in the mempool is guaranteed to execute safely, allowing sub-second API authorization.
+                  The gateway proxy verifies the signature and checks the transaction hash against an in-memory double-spend cache. If the hash has already been spent, the request is rejected with an <code>HTTP 401 Replay Attack</code> status to prevent double-spending.
                 </p>
               </div>
             </div>
           </div>
 
-          {/* Right Side: Code Blocks */}
-          <div className="soldiff-col-6" style={{ display: 'flex', flexDirection: 'column', backgroundColor: '#09090b' }}>
-            <div className="border-bottom-layout" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '12px 16px' }}>
-              <div style={{ display: 'flex', gap: '8px' }}>
+          {/* Right Side: Code snippets compiler panel */}
+          <div className="soldiff-col-6" style={{ display: 'flex', flexDirection: 'column', backgroundColor: 'rgba(0,0,0,0.02)' }}>
+            <div className="border-bottom-layout" style={{ padding: '16px 24px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', backgroundColor: 'rgba(255,255,255,0.005)' }}>
+              
+              <div style={{ display: 'flex', gap: '16px' }}>
                 <button 
-                  onClick={() => setCodeTab('javascript')}
+                  onClick={() => setCodeTab('middleware')}
                   className="font-mono-text"
                   style={{
                     background: 'none',
                     border: 'none',
-                    color: codeTab === 'javascript' ? '#fff' : 'var(--fg-muted)',
+                    color: codeTab === 'middleware' ? 'var(--fg-color)' : 'var(--fg-muted)',
                     cursor: 'pointer',
                     fontSize: '0.8rem',
-                    fontWeight: codeTab === 'javascript' ? '600' : '400',
-                    borderBottom: codeTab === 'javascript' ? '1px solid #fff' : 'none',
+                    fontWeight: codeTab === 'middleware' ? '600' : '400',
+                    borderBottom: codeTab === 'middleware' ? '1px solid var(--fg-color)' : 'none',
                     paddingBottom: '4px'
                   }}
                 >
-                  c402_gateway.js
+                  express-middleware.js
                 </button>
                 <button 
                   onClick={() => setCodeTab('aiken')}
@@ -84,11 +76,11 @@ export default function Docs({ codeTab, setCodeTab, copied, handleCopy }) {
                   style={{
                     background: 'none',
                     border: 'none',
-                    color: codeTab === 'aiken' ? '#fff' : 'var(--fg-muted)',
+                    color: codeTab === 'aiken' ? 'var(--fg-color)' : 'var(--fg-muted)',
                     cursor: 'pointer',
                     fontSize: '0.8rem',
                     fontWeight: codeTab === 'aiken' ? '600' : '400',
-                    borderBottom: codeTab === 'aiken' ? '1px solid #fff' : 'none',
+                    borderBottom: codeTab === 'aiken' ? '1px solid var(--fg-color)' : 'none',
                     paddingBottom: '4px'
                   }}
                 >
@@ -121,8 +113,8 @@ export default function Docs({ codeTab, setCodeTab, copied, handleCopy }) {
               fontSize: '0.78rem',
               lineHeight: '1.6',
               fontFamily: 'var(--font-mono)',
-              color: '#e4e4e7',
-              backgroundColor: '#09090b'
+              color: 'var(--fg-color)',
+              backgroundColor: 'var(--bg-color)'
             }}>
               <code>
                 {developerSnippets[codeTab]}

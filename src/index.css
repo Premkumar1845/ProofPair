@@ -2,18 +2,43 @@
   --bg-color: #030303;
   --fg-color: #fafafa;
   --fg-muted: #a1a1aa;
-  --border-color: #1a1a1a;
-  --border-active: #2e2e2e;
-  --accent-green: #10b981;
-  --accent-green-bg: rgba(16, 185, 129, 0.05);
+  --border-color: #222222;
+  --border-active: #ffde03; /* steel.dev bright yellow */
+  --accent-green: #ffde03;
+  --accent-green-bg: rgba(255, 222, 3, 0.05);
+  --accent-cyan: #ffde03;
+  --accent-cyan-bg: rgba(255, 222, 3, 0.05);
   --accent-red: #ef4444;
   --accent-red-bg: rgba(239, 68, 68, 0.05);
-  --accent-amber: #f59e0b;
-  --accent-amber-bg: rgba(245, 158, 11, 0.05);
-  --glass-bg: rgba(9, 9, 11, 0.8);
+  --accent-amber: #ffde03;
+  --accent-amber-bg: rgba(255, 222, 3, 0.05);
+  --glass-bg: rgba(9, 9, 11, 0.85);
+  --card-bg: #09090b;
+  --badge-bg: rgba(255, 255, 255, 0.03);
   --font-serif: 'Instrument Serif', serif;
+  --font-numbers: 'Share Tech Mono', monospace;
+  --font-bitmap: 'VT323', monospace;
   --font-sans: 'Plus Jakarta Sans', sans-serif;
   --font-mono: 'JetBrains Mono', monospace;
+}
+
+/* Light mode overrides */
+:root.light {
+  --bg-color: #f7f7f7;
+  --fg-color: #111111;
+  --fg-muted: #666666;
+  --border-color: #e4e4e7;
+  --border-active: #ffde03;
+  --accent-green-bg: rgba(255, 222, 3, 0.08);
+  --accent-cyan-bg: rgba(255, 222, 3, 0.08);
+  --accent-amber-bg: rgba(255, 222, 3, 0.08);
+  --glass-bg: rgba(255, 255, 255, 0.85);
+  --card-bg: #ffffff;
+  --badge-bg: rgba(0, 0, 0, 0.05);
+}
+
+html, body, section, header, .floating-navbar-pill, .spotlight-card, input, select, button, footer {
+  transition: background-color 0.25s ease, border-color 0.25s ease, color 0.25s ease, box-shadow 0.25s ease;
 }
 
 * {
@@ -23,28 +48,13 @@
 }
 
 html, body {
-  background-color: var(--bg-color);
+  background: #030303;
   color: var(--fg-color);
   font-family: var(--font-sans);
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   overflow-x: hidden;
-}
-
-/* Elegant Grid Background Pattern cloning SolDiff layout */
-body::before {
-  content: "";
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100vw;
-  height: 100vh;
-  z-index: -1;
-  background-image: 
-    linear-gradient(to right, rgba(26, 26, 26, 0.45) 1px, transparent 1px),
-    linear-gradient(to bottom, rgba(26, 26, 26, 0.45) 1px, transparent 1px);
-  background-size: 40px 40px;
-  pointer-events: none;
+  min-height: 100vh;
 }
 
 /* Scrollbars */
@@ -56,15 +66,15 @@ body::before {
   background: var(--bg-color);
 }
 ::-webkit-scrollbar-thumb {
-  background: var(--border-active);
+  background: rgba(120, 120, 120, 0.4);
   border-radius: 3px;
 }
 ::-webkit-scrollbar-thumb:hover {
-  background: #333;
+  background: rgba(120, 120, 120, 0.6);
 }
 
 /* Typography styling */
-h1, h2, h3 {
+h1, h2, h3, h4 {
   font-family: var(--font-serif);
   font-weight: 400;
   letter-spacing: -0.02em;
@@ -73,6 +83,17 @@ h1, h2, h3 {
 .font-serif-italic {
   font-family: var(--font-serif);
   font-style: italic;
+  color: #ffde03 !important;
+  text-shadow: 
+    -1.5px 0px 0px rgba(255, 0, 85, 0.85),
+    1.5px 0px 0px rgba(0, 255, 170, 0.85) !important;
+}
+
+.chromatic-yellow {
+  color: #ffde03 !important;
+  text-shadow: 
+    -1.5px 0px 0px rgba(255, 0, 85, 0.85),
+    1.5px 0px 0px rgba(0, 255, 170, 0.85) !important;
 }
 
 .font-mono-text {

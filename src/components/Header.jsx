@@ -6,7 +6,9 @@ import {
   LayoutDashboard, 
   BookOpen, 
   Wallet, 
-  Fingerprint
+  Fingerprint,
+  Sun,
+  Moon
 } from 'lucide-react';
 import { Magnet } from './ReactBitsComponents';
 
@@ -16,7 +18,9 @@ export default function Header({
   connectedWallet, 
   walletBalance, 
   disconnectWallet, 
-  setShowWalletModal 
+  setShowWalletModal,
+  theme,
+  toggleTheme
 }) {
   const isInIframe = typeof window !== 'undefined' && window.self !== window.top;
   const [hoveredTab, setHoveredTab] = useState(null);
@@ -27,6 +31,33 @@ export default function Header({
     { id: 'dashboard', label: 'Console', icon: <LayoutDashboard size={12} /> },
     { id: 'docs', label: 'Docs', icon: <BookOpen size={12} /> }
   ];
+
+  // Synthesizes a premium mechanical toggle click sound effect
+  const handleThemeToggle = () => {
+    try {
+      const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+      const oscillator = audioCtx.createOscillator();
+      const gainNode = audioCtx.createGain();
+
+      oscillator.connect(gainNode);
+      gainNode.connect(audioCtx.destination);
+
+      oscillator.type = 'sine';
+      oscillator.frequency.setValueAtTime(750, audioCtx.currentTime);
+      oscillator.frequency.exponentialRampToValueAtTime(180, audioCtx.currentTime + 0.08);
+
+      gainNode.gain.setValueAtTime(0.04, audioCtx.currentTime);
+      gainNode.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.08);
+
+      oscillator.start();
+      oscillator.stop(audioCtx.currentTime + 0.08);
+    } catch (e) {
+      console.warn("Audio context not allowed or supported:", e);
+    }
+
+    // Trigger state change
+    toggleTheme();
+  };
 
   return (
     <header 
@@ -41,17 +72,17 @@ export default function Header({
           pointerEvents: 'auto',
           display: 'flex',
           alignItems: 'center',
-          backgroundColor: 'rgba(8, 8, 10, 0.75)',
+          backgroundColor: 'var(--glass-bg)',
           backdropFilter: 'blur(20px)',
           WebkitBackdropFilter: 'blur(20px)',
-          border: '1px solid rgba(16, 185, 129, 0.2)', // Glowing green accent outline border
+          border: '1px solid var(--border-color)', // Replaced yellow border with clean theme border
           borderRadius: '9999px',
           padding: '6px 12px',
           gap: '2px',
-          boxShadow: '0 12px 40px rgba(0, 0, 0, 0.8), 0 0 20px rgba(16, 185, 129, 0.08)' // Radial backdrop shadow
+          boxShadow: '0 8px 30px rgba(0, 0, 0, 0.45)' // Flat clean shadow
         }}
       >
-        {/* Logo Icon */}
+        {/* Theme-Adaptive Logo */}
         <div 
           onClick={() => setCurrentPage('landing')}
           style={{ 
@@ -60,17 +91,23 @@ export default function Header({
             justifyContent: 'center',
             width: '26px', 
             height: '26px', 
-            backgroundColor: '#fff', 
-            borderRadius: '50%', 
             cursor: 'pointer',
             marginRight: '8px',
-            boxShadow: '0 0 12px rgba(255,255,255,0.3)',
             transition: 'transform 0.4s cubic-bezier(0.16, 1, 0.3, 1)'
           }}
-          onMouseEnter={(e) => e.currentTarget.style.transform = 'rotate(180deg) scale(1.1)'}
-          onMouseLeave={(e) => e.currentTarget.style.transform = 'rotate(0deg) scale(1)'}
+          onMouseEnter={(e) => e.currentTarget.style.transform = 'scale(1.1)'}
+          onMouseLeave={(e) => e.currentTarget.style.transform = 'scale(1)'}
         >
-          <Terminal size={12} color="#000" strokeWidth={2.5} />
+          <img 
+            src={theme === 'dark' ? '/logo-dark.png' : '/logo-light.png'} 
+            alt="C402 Logo" 
+            style={{ 
+              width: '100%', 
+              height: '100%', 
+              objectFit: 'contain',
+              borderRadius: '50%'
+            }} 
+          />
         </div>
 
         {/* Dynamic Sliding Tabs */}
@@ -86,7 +123,7 @@ export default function Header({
                 position: 'relative',
                 background: 'none',
                 border: 'none',
-                color: isActive ? '#fff' : 'var(--fg-muted)',
+                color: isActive ? 'var(--fg-color)' : 'var(--fg-muted)',
                 fontSize: '0.76rem',
                 fontWeight: isActive ? '600' : '400',
                 padding: '6px 14px',
@@ -109,8 +146,8 @@ export default function Header({
                     left: 0,
                     right: 0,
                     bottom: 0,
-                    backgroundColor: 'rgba(16, 185, 129, 0.05)',
-                    border: '1px solid rgba(16, 185, 129, 0.15)',
+                    backgroundColor: 'var(--badge-bg)',
+                    border: '1px solid var(--border-color)',
                     borderRadius: '9999px',
                     zIndex: -1
                   }}
@@ -128,8 +165,8 @@ export default function Header({
                     left: 0,
                     right: 0,
                     bottom: 0,
-                    backgroundColor: 'rgba(16, 185, 129, 0.08)',
-                    border: '1px solid rgba(16, 185, 129, 0.25)',
+                    backgroundColor: 'var(--accent-green-bg)',
+                    border: '1px solid var(--border-active)',
                     borderRadius: '9999px',
                     zIndex: -1
                   }}
@@ -151,8 +188,7 @@ export default function Header({
                   width: '4px', 
                   height: '4px', 
                   backgroundColor: 'var(--accent-green)', 
-                  borderRadius: '50%', 
-                  boxShadow: '0 0 6px var(--accent-green)' 
+                  borderRadius: '50%'
                 }} />
               )}
             </button>
@@ -163,7 +199,7 @@ export default function Header({
         <div style={{
           width: '1px',
           height: '18px',
-          backgroundColor: 'rgba(255, 255, 255, 0.12)',
+          backgroundColor: 'var(--border-color)',
           margin: '0 6px'
         }} />
 
@@ -174,15 +210,15 @@ export default function Header({
               display: 'flex', 
               alignItems: 'center', 
               gap: '8px', 
-              backgroundColor: 'rgba(16,185,129,0.06)', 
-              border: '1px solid rgba(16,185,129,0.2)',
+              backgroundColor: 'var(--accent-green-bg)', 
+              border: '1px solid var(--border-active)',
               padding: '3px 10px', 
               borderRadius: '9999px' 
             }}>
               <span className="badge-verified" style={{ fontSize: '0.62rem', padding: '1px 5px', display: 'flex', alignItems: 'center', gap: '3px', borderRadius: '9999px' }}>
                 <Wallet size={8} /> {connectedWallet.toUpperCase()}
               </span>
-              <span style={{ fontSize: '0.72rem', fontFamily: 'var(--font-mono)', color: '#fff', fontWeight: '600' }}>
+              <span style={{ fontSize: '0.72rem', fontFamily: 'var(--font-numbers)', color: 'var(--fg-color)', fontWeight: '600' }}>
                 {walletBalance} ADA
               </span>
               <button 
@@ -214,8 +250,8 @@ export default function Header({
                   fontSize: '0.72rem',
                   borderRadius: '9999px',
                   height: '28px',
-                  border: '1px solid rgba(255, 255, 255, 0.1)',
-                  boxShadow: '0 2px 10px rgba(16,185,129,0.2)'
+                  border: '1px solid var(--border-color)',
+                  boxShadow: 'none'
                 }}
               >
                 <Fingerprint size={11} /> 
@@ -224,6 +260,39 @@ export default function Header({
             </Magnet>
           )}
         </div>
+
+        {/* Divider */}
+        <div style={{
+          width: '1px',
+          height: '18px',
+          backgroundColor: 'var(--border-color)',
+          margin: '0 4px'
+        }} />
+
+        {/* Theme Switcher */}
+        <Magnet range={20}>
+          <button
+            onClick={handleThemeToggle}
+            style={{
+              background: 'none',
+              border: '1px solid var(--border-color)',
+              color: 'var(--fg-color)',
+              borderRadius: '50%',
+              width: '28px',
+              height: '28px',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              cursor: 'pointer',
+              outline: 'none',
+              padding: 0
+            }}
+            title={theme === 'dark' ? 'Switch to Light Mode' : 'Switch to Dark Mode'}
+          >
+            {theme === 'dark' ? <Sun size={12} color="var(--accent-green)" /> : <Moon size={12} color="var(--accent-green)" />}
+          </button>
+        </Magnet>
+
       </div>
     </header>
   );
