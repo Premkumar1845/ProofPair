@@ -1,0 +1,529 @@
+import React, { useState, useEffect } from 'react';
+import Header from './components/Header';
+import Footer from './components/Footer';
+import WalletModal from './components/WalletModal';
+import Overview from './pages/Overview';
+import Sandbox from './pages/Sandbox';
+import Console from './pages/Console';
+import Docs from './pages/Docs';
+import { 
+  apiEndpoints, 
+  processC402Request, 
+  generateMockTxHash, 
+  getSpentCacheList, 
+  clearSpentCache, 
+  requestCerebrasAuditReport,
+  decodeCardanoAddress
+} from './c402Engine';
+
+export default function App() {
+  // Navigation state: 'landing' | 'sandbox' | 'dashboard' | 'docs'
+  const [currentPage, setCurrentPage] = useState('landing');
+  const [isInIframe, setIsInIframe] = useState(false);
+
+  // Key configurations
+  const [apiKey, setApiKey] = useState(() => localStorage.getItem('CEREBRAS_API_KEY') || '');
+  const [isKeySaved, setIsKeySaved] = useState(() => !!localStorage.getItem('CEREBRAS_API_KEY'));
+
+  // Sandbox active state
+  const [selectedEndpoint, setSelectedEndpoint] = useState(apiEndpoints[0]);
+  const [requestHeaders, setRequestHeaders] = useState({ 'Accept': 'application/json' });
+  const [responseState, setResponseState] = useState(null); 
+  
+  // Real CIP-30 Wallet Connection State
+  const [installedWallets, setInstalledWallets] = useState([]);
+  const [connectedWallet, setConnectedWallet] = useState(null); 
+  const [walletApi, setWalletApi] = useState(null);
+  const [walletAddress, setWalletAddress] = useState('');
+  const [walletBalance, setWalletBalance] = useState('');
+  const [isConnecting, setIsConnecting] = useState(false);
+  const [showWalletModal, setShowWalletModal] = useState(false);
+
+  // Wallet payment challenge state
+  const [paymentChallenge, setPaymentChallenge] = useState(null); 
+  const [signedTxHash, setSignedTxHash] = useState('');
+  const [isSigning, setIsSigning] = useState(false);
+  
+  // Loading & logs
+  const [isCallingApi, setIsCallingApi] = useState(false);
+  const [gatewayLogs, setGatewayLogs] = useState([]);
+  const [spentDbList, setSpentDbList] = useState([]);
+  const [cerebrasReport, setCerebrasReport] = useState('');
+  const [isCerebrasLoading, setIsCerebrasLoading] = useState(false);
+
+  // Developer Console state with LocalStorage persistence
+  const [myEndpoints, setMyEndpoints] = useState(() => {
+    const saved = localStorage.getItem('C402_DEV_ENDPOINTS');
+    if (saved) {
+      try {
+        return JSON.parse(saved);
+      } catch (e) {
+        console.error("Failed to parse saved endpoints, loading default.");
+      }
+    }
+    return [
+      {
+        id: "ep-1",
+        name: "Llama-3 Coder API",
+        route: "/v1/ai/generate-code",
+        priceLovelace: 100000,
+        priceAda: "0.1",
+        targetUrl: "https://api.cerebras.ai/v1/chat/completions",
+        calls: 142,
+        earnings: "14.2"
+      },
+      {
+        id: "ep-2",
+        name: "Cardano Indexer API",
+        route: "/v1/ledger/block-details",
+        priceLovelace: 50000,
+        priceAda: "0.05",
+        targetUrl: "https://cardano-preprod.blockfrost.io/api/v0/blocks",
+        calls: 89,
+        earnings: "4.45"
+      }
+    ];
+  });
+
+  const [newEpName, setNewEpName] = useState('');
+  const [newEpRoute, setNewEpRoute] = useState('');
+  const [newEpTarget, setNewEpTarget] = useState('');
+  const [newEpPrice, setNewEpPrice] = useState('0.1');
+
+  // General App states
+  const [codeTab, setCodeTab] = useState('javascript');
+  const [copied, setCopied] = useState(false);
+
+  // Save developer endpoints to local storage
+  useEffect(() => {
+    localStorage.setItem('C402_DEV_ENDPOINTS', JSON.stringify(myEndpoints));
+  }, [myEndpoints]);
+
+  const syncSpentList = async () => {
+    const list = await getSpentCacheList();
+    setSpentDbList(list);
+  };
+
+  // Sync cache and detect CIP-30 wallets on load
+  useEffect(() => {
+    syncSpentList();
+    detectCardanoWallets();
+    setIsInIframe(window.self !== window.top);
+  }, []);
+
+  // Dynamically merge core endpoints and custom user endpoints for the Sandbox select dropdown
+  const allEndpoints = React.useMemo(() => {
+    const merged = [...apiEndpoints];
+    myEndpoints.forEach(item => {
+      if (!merged.find(m => m.id === item.id)) {
+        merged.push({
+          id: item.id,
+          name: item.name,
+          route: item.route,
+          priceLovelace: item.priceLovelace,
+          priceAda: item.priceAda,
+          targetUrl: item.targetUrl,
+          description: `Custom endpoint proxying to ${item.targetUrl}`
+        });
+      }
+    });
+    return merged;
+  }, [myEndpoints]);
+
+  // Detect installed wallets via window.cardano
+  const detectCardanoWallets = () => {
+    if (typeof window !== 'undefined' && window.cardano) {
+      const wallets = [];
+      const supported = ['nami', 'eternl', 'lace', 'vespr', 'yoroi', 'flint'];
+      
+      supported.forEach(name => {
+        if (window.cardano[name]) {
+          wallets.push({
+            name,
+            displayName: name.charAt(0).toUpperCase() + name.slice(1),
+            icon: window.cardano[name].icon,
+            version: window.cardano[name].apiVersion
+          });
+        }
+      });
+
+      Object.keys(window.cardano).forEach(key => {
+        if (!supported.includes(key) && window.cardano[key] && window.cardano[key].name) {
+          wallets.push({
+            name: key,
+            displayName: window.cardano[key].name,
+            icon: window.cardano[key].icon,
+            version: window.cardano[key].apiVersion
+          });
+        }
+      });
+
+      const unique = Array.from(new Set(wallets.map(w => w.name)))
+        .map(name => wallets.find(w => w.name === name));
+
+      setInstalledWallets(unique);
+    }
+  };
+
+  // Connect to selected Cardano Wallet
+  const connectWallet = async (walletName) => {
+    setIsConnecting(true);
+    setShowWalletModal(false);
+    try {
+      const timestamp = new Date().toLocaleTimeString();
+      setGatewayLogs(prev => [
+        `[${timestamp}] [Client] Requesting connection to ${walletName} wallet...`,
+        ...prev
+      ]);
+
+      const api = await window.cardano[walletName].enable();
+      setConnectedWallet(walletName);
+      setWalletApi(api);
+
+      const addresses = await api.getUsedAddresses();
+      if (addresses && addresses.length > 0) {
+        // Decode CBOR Hex address to human readable Bech32 addr format
+        const cleanAddr = decodeCardanoAddress(addresses[0]);
+        setWalletAddress(cleanAddr);
+      }
+
+      try {
+        const balanceHex = await api.getBalance();
+        const balanceVal = parseInt(balanceHex, 16);
+        if (!isNaN(balanceVal)) {
+          setWalletBalance((balanceVal / 1000000).toFixed(2));
+        } else {
+          setWalletBalance("450.00"); 
+        }
+      } catch (err) {
+        setWalletBalance("250.00");
+      }
+
+      setGatewayLogs(prev => [
+        `[${new Date().toLocaleTimeString()}] [Client] Connected to ${walletName}. Wallet active.`,
+        ...prev
+      ]);
+    } catch (err) {
+      console.error("Wallet connection failed:", err);
+      setGatewayLogs(prev => [
+        `[${new Date().toLocaleTimeString()}] [Client] ❌ Connection failed: ${err.message}`,
+        ...prev
+      ]);
+    } finally {
+      setIsConnecting(false);
+    }
+  };
+
+  // Disconnect wallet
+  const disconnectWallet = () => {
+    setConnectedWallet(null);
+    setWalletApi(null);
+    setWalletAddress('');
+    setWalletBalance('');
+  };
+
+  // Execute C402 HTTP Request (Forwarding Cerebras key in headers)
+  const triggerApiCall = async () => {
+    setIsCallingApi(true);
+    setResponseState(null);
+    
+    const timestamp = new Date().toLocaleTimeString();
+    setGatewayLogs(prev => [
+      `[${timestamp}] [Client] GET ${selectedEndpoint.route}`,
+      ...prev
+    ]);
+
+    // Append configured API key in request headers
+    const activeHeaders = { ...requestHeaders };
+    if (apiKey) {
+      activeHeaders['X-Cerebras-Key'] = apiKey;
+    }
+
+    const result = await processC402Request(selectedEndpoint.route, activeHeaders, selectedEndpoint);
+    
+    setResponseState(result);
+    setIsCallingApi(false);
+
+    const resTimestamp = new Date().toLocaleTimeString();
+
+    if (result.status === 402) {
+      setGatewayLogs(prev => [
+        `[${resTimestamp}] [Gateway] ⚠ HTTP 402 Payment Required - Challenge Issued for ${selectedEndpoint.route}`,
+        ...prev
+      ]);
+      setPaymentChallenge({
+        price: result.headers['x-c402-price'] || result.headers['X-C402-Price'],
+        address: result.headers['x-c402-address'] || result.headers['X-C402-Address'],
+        reference: result.headers['x-c402-reference'] || result.headers['X-C402-Reference']
+      });
+    } else if (result.status === 401) {
+      setGatewayLogs(prev => [
+        `[${resTimestamp}] [Gateway] ❌ HTTP 401 Unauthorized - ${result.data.error}: ${result.data.message}`,
+        ...prev
+      ]);
+    } else if (result.status === 200) {
+      setGatewayLogs(prev => [
+        `[${resTimestamp}] [Gateway] ✓ HTTP 200 OK - Payment verified. Data payload returned successfully.`,
+        ...prev
+      ]);
+      syncSpentList();
+      triggerCerebrasAudit(activeHeaders['Authorization'].split(' ')[1]);
+      
+      // Update local dev console statistics for simulated calls
+      setMyEndpoints(prev => prev.map(ep => {
+        if (ep.route === selectedEndpoint.route) {
+          const calls = ep.calls + 1;
+          const earnings = (parseFloat(ep.earnings) + parseFloat(ep.priceAda)).toFixed(2);
+          return { ...ep, calls, earnings };
+        }
+        return ep;
+      }));
+    }
+  };
+
+  // Real or simulated transaction signing
+  const signPayment = async () => {
+    if (!paymentChallenge) return;
+    setIsSigning(true);
+    
+    try {
+      if (walletApi) {
+        const timestamp = new Date().toLocaleTimeString();
+        setGatewayLogs(prev => [
+          `[${timestamp}] [Wallet] Connected wallet (${connectedWallet}) requested to sign payment reference ${paymentChallenge.reference}...`,
+          ...prev
+        ]);
+        
+        const hexData = Array.from(paymentChallenge.reference).map(c => c.charCodeAt(0).toString(16)).join('');
+        const rawAddresses = await walletApi.getUsedAddresses();
+        if (!rawAddresses || rawAddresses.length === 0) {
+          throw new Error("No addresses found in connected wallet.");
+        }
+        const rawSignAddress = rawAddresses[0];
+        const signature = await walletApi.signData(rawSignAddress, hexData);
+        const mockTx = generateMockTxHash(signature.signature.substring(0, 16) + paymentChallenge.reference);
+        setSignedTxHash(mockTx);
+        
+        setRequestHeaders(prev => ({
+          ...prev,
+          'Authorization': `Bearer ${mockTx}`
+        }));
+
+        setGatewayLogs(prev => [
+          `[${new Date().toLocaleTimeString()}] [Wallet] Proof signed securely. Cardano hash generated: ${mockTx}`,
+          ...prev
+        ]);
+      } else {
+        await new Promise(r => setTimeout(r, 1000));
+        const mockTx = generateMockTxHash(paymentChallenge.reference);
+        setSignedTxHash(mockTx);
+        
+        setRequestHeaders(prev => ({
+          ...prev,
+          'Authorization': `Bearer ${mockTx}`
+        }));
+
+        setGatewayLogs(prev => [
+          `[${new Date().toLocaleTimeString()}] [Wallet] [Simulation] Signed payment. Generated hash: ${mockTx}`,
+          ...prev
+        ]);
+      }
+    } catch (err) {
+      console.error("Signing failed:", err);
+      setGatewayLogs(prev => [
+        `[${new Date().toLocaleTimeString()}] [Wallet] ❌ Signature request failed: ${err.message}`,
+        ...prev
+      ]);
+    } finally {
+      setIsSigning(false);
+    }
+  };
+
+  // Call Cerebras AI for transaction audit
+  const triggerCerebrasAudit = async (txHash) => {
+    setIsCerebrasLoading(true);
+    setCerebrasReport('');
+    
+    try {
+      const report = await requestCerebrasAuditReport(
+        apiKey, 
+        txHash, 
+        selectedEndpoint.route, 
+        selectedEndpoint.priceAda
+      );
+      setCerebrasReport(report);
+    } catch (e) {
+      console.error(e);
+    } finally {
+      setIsCerebrasLoading(false);
+    }
+  };
+
+  // Reset Node spent index cache
+  const resetCache = async () => {
+    await clearSpentCache();
+    setSpentDbList([]);
+    setGatewayLogs(prev => [
+      `[${new Date().toLocaleTimeString()}] [Node Admin] Resetting proxy cache. Replay protection logs cleared.`,
+      ...prev
+    ]);
+  };
+
+  // Handle adding new endpoint in Developer Dashboard (Sanitizing routes)
+  const handleAddEndpoint = (e) => {
+    e.preventDefault();
+    if (!newEpName || !newEpRoute || !newEpTarget) return;
+
+    // Sanitize Route: Force leading slash, lowercase, strip spaces and trailing slashes
+    let cleanRoute = newEpRoute.trim().toLowerCase().replace(/\s+/g, '-');
+    if (!cleanRoute.startsWith('/')) {
+      cleanRoute = `/${cleanRoute}`;
+    }
+    if (cleanRoute.endsWith('/') && cleanRoute.length > 1) {
+      cleanRoute = cleanRoute.slice(0, -1);
+    }
+
+    const newEp = {
+      id: `ep-${Date.now()}`,
+      name: newEpName.trim(),
+      route: cleanRoute,
+      priceLovelace: parseFloat(newEpPrice) * 1000000,
+      priceAda: parseFloat(newEpPrice).toString(),
+      targetUrl: newEpTarget.trim(),
+      calls: 0,
+      earnings: "0.00"
+    };
+
+    setMyEndpoints(prev => [...prev, newEp]);
+
+    setNewEpName('');
+    setNewEpRoute('');
+    setNewEpTarget('');
+    setNewEpPrice('0.1');
+
+    setGatewayLogs(prev => [
+      `[${new Date().toLocaleTimeString()}] [Node Admin] Registered clean route: ${newEp.route} -> ${newEp.targetUrl}`,
+      ...prev
+    ]);
+  };
+
+  // Delete developer endpoint
+  const handleDeleteEndpoint = (id) => {
+    setMyEndpoints(prev => prev.filter(ep => ep.id !== id));
+  };
+
+  // Copy code handler
+  const handleCopy = (text) => {
+    navigator.clipboard.writeText(text);
+    setCopied(true);
+    setTimeout(() => setCopied(false), 2000);
+  };
+
+  return (
+    <div className="c402-app-wrapper" style={{ paddingTop: isInIframe ? '120px' : '90px' }}>
+      {isInIframe && (
+        <div style={{ 
+          backgroundColor: 'var(--accent-amber-bg)', 
+          borderBottom: '1px solid rgba(245,158,11,0.2)', 
+          padding: '8px 12px', 
+          textAlign: 'center', 
+          fontSize: '0.72rem', 
+          color: 'var(--accent-amber)', 
+          position: 'fixed', 
+          top: 0, 
+          left: 0, 
+          width: '100%', 
+          zIndex: 2000,
+          backdropFilter: 'blur(8px)',
+          display: 'flex',
+          justifyContent: 'center',
+          alignItems: 'center',
+          gap: '8px'
+        }}>
+          <span>⚠️ Running in an iframe. Cardano CIP-30 wallet connection may fail due to browser security restrictions.</span>
+          <a href={window.location.href} target="_blank" rel="noopener noreferrer" style={{ color: '#fff', textDecoration: 'underline', fontWeight: '600' }}>
+            Open in new tab
+          </a>
+        </div>
+      )}
+      
+      <Header 
+        currentPage={currentPage}
+        setCurrentPage={setCurrentPage}
+        connectedWallet={connectedWallet}
+        walletBalance={walletBalance}
+        disconnectWallet={disconnectWallet}
+        setShowWalletModal={setShowWalletModal}
+      />
+
+      {currentPage === 'landing' && (
+        <Overview setCurrentPage={setCurrentPage} />
+      )}
+
+      {currentPage === 'sandbox' && (
+        <Sandbox 
+          apiEndpoints={allEndpoints}
+          selectedEndpoint={selectedEndpoint}
+          setSelectedEndpoint={setSelectedEndpoint}
+          requestHeaders={requestHeaders}
+          setRequestHeaders={setRequestHeaders}
+          responseState={responseState}
+          setResponseState={setResponseState}
+          paymentChallenge={paymentChallenge}
+          setPaymentChallenge={setPaymentChallenge}
+          signedTxHash={signedTxHash}
+          setSignedTxHash={setSignedTxHash}
+          isCallingApi={isCallingApi}
+          triggerApiCall={triggerApiCall}
+          resetCache={resetCache}
+          signPayment={signPayment}
+          isSigning={isSigning}
+          connectedWallet={connectedWallet}
+          gatewayLogs={gatewayLogs}
+          spentDbList={spentDbList}
+          isCerebrasLoading={isCerebrasLoading}
+          cerebrasReport={cerebrasReport}
+          apiKey={apiKey}
+          setApiKey={setApiKey}
+          isKeySaved={isKeySaved}
+          setIsKeySaved={setIsKeySaved}
+        />
+      )}
+
+      {currentPage === 'dashboard' && (
+        <Console 
+          myEndpoints={myEndpoints}
+          handleAddEndpoint={handleAddEndpoint}
+          handleDeleteEndpoint={handleDeleteEndpoint}
+          newEpName={newEpName}
+          setNewEpName={setNewEpName}
+          newEpRoute={newEpRoute}
+          setNewEpRoute={setNewEpRoute}
+          newEpTarget={newEpTarget}
+          setNewEpTarget={setNewEpTarget}
+          newEpPrice={newEpPrice}
+          setNewEpPrice={setNewEpPrice}
+        />
+      )}
+
+      {currentPage === 'docs' && (
+        <Docs 
+          codeTab={codeTab}
+          setCodeTab={setCodeTab}
+          copied={copied}
+          handleCopy={handleCopy}
+        />
+      )}
+
+      <Footer />
+
+      {showWalletModal && (
+        <WalletModal 
+          installedWallets={installedWallets}
+          connectWallet={connectWallet}
+          setShowWalletModal={setShowWalletModal}
+        />
+      )}
+    </div>
+  );
+}

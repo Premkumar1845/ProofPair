@@ -1,0 +1,280 @@
+# C402 Protocol: Cardano HTTP 402 API Gateway
+## Detailed Technical Specification & Architecture Whitepaper
+**Version:** 1.0.0  
+**Target:** IndiaCodex '26 Hackathon  
+**Author:** Verix Project Team (Cardano General Track)
+
+---
+
+## 1. Executive Summary
+
+Modern web service monetization is dominated by recurring SaaS subscriptions (Stripe) and prepaid credits. While effective for human consumers, these billing rails fail for autonomous software systems, AI agents, and developer microservices. These systems require granular, pay-as-you-use pricing models (micro-transactions under $0.05). 
+
+Traditional payment systems fail here due to fixed merchant processing fees (e.g., $0.30 per charge). The **C402 Protocol** solves this problem for the Cardano ecosystem by implementing a standardized, open-source **HTTP 402 Payment Required** proxy. C402 allows any developer to monetize their API endpoints instantly, charging users fractions of an ADA (Lovelaces) per API call, settled peer-to-peer on-chain, with zero subscription friction.
+
+---
+
+## 2. The Problem Space: API Monetization Failure
+
+The growth of Web3, AI, and autonomous bots has introduced machine-to-machine API consumption. For instance, an AI agent might call a translation API 15 times, a scraper API 4 times, and a ledger indexer 100 times. 
+
+Under current paradigms, the developer of the scraper API must:
+1. Build a registration page and user database.
+2. Set up Stripe billing.
+3. Charge a $10/month subscription or require the user to pre-fund a credit balance.
+
+For the client, managing subscriptions across 50 different microservices is a management nightmare. For the developer, the overhead of accounting, database maintenance, and payment processing compliance is prohibitive. 
+
+---
+
+## 3. The Solution: C402 Protocol (Cardano HTTP 402)
+
+`C402` introduces a zero-friction, wallet-to-server gateway. When a client calls a protected API:
+1. The gateway intercepts the call and returns an `HTTP 402 Payment Required` response containing the payment parameters (price, recipient address, and a unique tracking reference).
+2. The client wallet builds and signs a Cardano transaction matching these specifications.
+3. The client retries the API request, attaching the transaction hash as proof.
+4. The C402 gateway verifies the transaction on-chain via a blockchain indexer (Blockfrost/Koios) and, upon confirmation, releases the API payload.
+
+---
+
+## 4. Why Cardano?
+
+Cardano possesses unique ledger characteristics that make it uniquely suited for pay-per-request API gateways:
+
+### A. Predictable Transaction Fees
+Unlike Ethereum, where gas spikes can make a $0.02 API payment cost $15.00 in fees, Cardano transaction fees are highly predictable and calculated based on transaction size, not network congestion. This ensures that micro-ADA transactions remain cost-effective.
+
+### B. First-Class Native Assets
+Cardano Native Tokens (like USDA, DJED, or custom utility tokens) do not run on custom smart contract code (like ERC-20). They are built directly into the ledger. This makes multi-token API monetization safe from smart contract exploits and extremely cheap to execute.
+
+### C. eUTxO Determinism
+The extended UTxO model ensures that transactions are deterministic. A user knows *before* submitting a transaction exactly what fees they will pay, and transactions can never fail on-chain mid-execution (wasting gas), which is a common failure mode in EVM systems.
+
+### D. Transaction Chaining
+Cardano's eUTxO model allows transaction outputs to be spent before the transaction is officially block-confirmed, enabling rapid transaction chaining. This allows clients to stream consecutive API calls without waiting for 20-second block times.
+
+---
+
+## 5. Technical Architecture & Protocol Flow
+
+The following diagram illustrates the detailed operational flow of the C402 protocol:
+
+```mermaid
+sequenceDiagram
+    autonumber
+    actor Client as API Consumer / Client
+    participant Proxy as C402 Proxy Gateway
+    participant Ledger as Cardano Ledger (Preprod)
+    participant Backend as Developer's API Server
+
+    Client->>Proxy: GET /v1/data/analyze <br/> (Headers: Accept: application/json)
+    Note over Proxy: Proxy checks if transaction proof exists
+    Proxy-->>Client: HTTP 402 Payment Required <br/> X-C402-Price: 100000 <br/> X-C402-Address: addr_test1q... <br/> X-C402-Reference: ref_982b1c
+    
+    Note over Client: Client parses response,<br/>prompts browser wallet (CIP-30)
+    Client->>Ledger: Submit 100,000 Lovelace (0.1 ADA) transaction<br/>with Metadata [Map: C402_REF -> ref_982b1c]
+    Ledger-->>Client: Return tx_hash (e.g. 0x8ab2c3...)
+
+    Client->>Proxy: GET /v1/data/analyze <br/> Authorization: Bearer 0x8ab2c3...
+    
+    Note over Proxy: Proxy checks local cache.<br/>If cache miss, queries Cardano Preprod via Blockfrost
+    Proxy->>Ledger: Query Tx Status (0x8ab2c3...)
+    Ledger-->>Proxy: Returns Tx Details (Outputs: addr_test1q..., Metadata match)
+    
+    alt Payment Invalid / Spoofed
+        Proxy-->>Client: HTTP 401 Unauthorized (Invalid Proof)
+    else Payment Valid
+        Note over Proxy: Store Tx Hash in local Redis cache<br/>to prevent double-spend replay attacks
+        Proxy->>Backend: Forward Request (Stripping payment headers)
+        Backend-->>Proxy: Returns API Payload (JSON)
+        Proxy-->>Client: HTTP 200 OK (Returns Data)
+    end
+```
+
+---
+
+## 6. HTTP Header & Protocol Specification
+
+To maintain interoperability with standard tools, C402 utilizes standard and custom HTTP headers:
+
+### Request Header (Initial)
+```http
+GET /api/v1/generate-code HTTP/1.1
+Host: api.c402.dev
+Accept: application/json
+```
+
+### Response Header (Challenge)
+Returned by the C402 proxy to signal that payment is required.
+```http
+HTTP/1.1 402 Payment Required
+Content-Type: application/json
+X-C402-Price: 100000
+X-C402-Address: addr_test1qrf9x2y4u9asqpwldjge937cnu2c7d9bc029ac1b
+X-C402-Reference: c402_ref_8f2b1a9c3d
+X-C402-Status: Challenge Issued
+```
+
+### Request Header (Payment Proof)
+The client retries the call, attaching the transaction hash as the authorization bearer token.
+```http
+GET /api/v1/generate-code HTTP/1.1
+Host: api.c402.dev
+Authorization: Bearer 8ab2c3f90141e8c9d092bf0a2b8e390c81bf58cd01019cfefb03a74932d8479e
+Accept: application/json
+```
+
+---
+
+## 7. Security Vector Analysis & Defenses
+
+Creating a pay-per-call API gateway introduces unique cryptographic security challenges:
+
+### A. The Double-Spend / Replay Attack
+* **The Threat:** A client makes an API call, pays 0.1 ADA, and gets a `tx_hash`. The client then makes 10,000 more API calls reusing the *same* `tx_hash` in the Authorization header.
+* **C402 Defense:** The gateway maintains a high-speed local cache (e.g., Redis or an in-memory key-value store) of all verified transaction hashes. Once a `tx_hash` is successfully validated and spent on an API call, it is marked as "spent" in the cache. Any subsequent request reusing that hash is instantly rejected with `401 Unauthorized`.
+
+### B. The Transaction Spoofing Attack
+* **The Threat:** A client pays 0.1 ADA to their *own* wallet or to a different merchant, receives a valid `tx_hash`, and submits it to our gateway to claim the API service.
+* **C402 Defense:** The verification engine does not just check if the transaction exists. It inspects the transaction outputs to confirm:
+  1. The transaction sent the exact required amount of Lovelaces (`X-C402-Price`).
+  2. The destination address matches the developer's registered wallet (`X-C402-Address`).
+  3. The transaction contains the unique tracking reference in its metadata mapping to prevent matching someone else's payment to this API call.
+
+### C. The Block Confirmation Latency (UX Bottleneck)
+* **The Threat:** Waiting for a Cardano block confirmation takes ~20 seconds. If the proxy gateway waits for block inclusion before returning the API payload, the API latency will be unusable.
+* **C402 Defense:** The C402 gateway leverages **Mempool Monitoring**. By querying the mempool status of the node, the proxy can verify that the transaction has been signed and broadcast to the network. Since Cardano transactions are deterministic and cannot fail on-chain once validated by the node mempool, the proxy can return the API response *immediately* upon seeing it in the mempool (sub-second latency), before it is packed into a block.
+
+---
+
+## 8. Database Schema for Gateway Configuration
+
+To manage multiple developer accounts and API endpoints, the gateway backend utilizes a structured relational schema:
+
+```sql
+-- Developer Registry
+CREATE TABLE developers (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    email VARCHAR(255) UNIQUE NOT NULL,
+    payout_address VARCHAR(255) NOT NULL,
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
+);
+
+-- Registered API Endpoints
+CREATE TABLE api_endpoints (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    developer_id UUID REFERENCES developers(id) ON DELETE CASCADE,
+    route_path VARCHAR(255) NOT NULL, -- e.g., "/v1/ai/summary"
+    target_url VARCHAR(255) NOT NULL, -- Target backend service url
+    price_lovelaces BIGINT NOT NULL DEFAULT 100000, -- Price per request
+    active BOOLEAN DEFAULT TRUE,
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
+);
+
+-- Spent Transactions Cache / Audit Log
+CREATE TABLE spent_proofs (
+    tx_hash VARCHAR(64) PRIMARY KEY,
+    endpoint_id UUID REFERENCES api_endpoints(id),
+    amount_paid BIGINT NOT NULL,
+    reference_id VARCHAR(255) NOT NULL,
+    spent_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
+);
+```
+
+---
+
+## 9. Code Implementation Blueprints
+
+### A. The C402 Middleware (Node.js/Express)
+This is the core code block that developers run on their gateways:
+
+```javascript
+// c402-middleware.js
+import axios from 'axios';
+
+const BLOCKFROST_API_URL = "https://cardano-preprod.blockfrost.io/api/v0";
+
+export const c402Middleware = (config) => {
+  const { blockfrostProjectId, developerAddress, priceLovelaces, spentCache } = config;
+
+  return async (req, res, next) => {
+    const authHeader = req.headers['authorization'];
+
+    // Step 1: Check for payment proof in request
+    if (!authHeader || !authHeader.startsWith('Bearer ')) {
+      // Issue challenge
+      const referenceId = `ref_${Math.random().toString(36).substr(2, 9)}`;
+      res.setHeader('X-C402-Price', priceLovelaces.toString());
+      res.setHeader('X-C402-Address', developerAddress);
+      res.setHeader('X-C402-Reference', referenceId);
+      return res.status(402).json({
+        error: "Payment Required",
+        message: "This API endpoint requires a micro-payment.",
+        price_lovelaces: priceLovelaces,
+        recipient_address: developerAddress,
+        reference_id: referenceId
+      });
+    }
+
+    const txHash = authHeader.split(' ')[1];
+
+    try {
+      // Step 2: Prevent Replay Attacks
+      const isSpent = await spentCache.has(txHash);
+      if (isSpent) {
+        return res.status(401).json({ error: "Unauthorized", message: "Transaction hash has already been spent." });
+      }
+
+      // Step 3: Fetch on-chain Tx details from Cardano network
+      const txResponse = await axios.get(`${BLOCKFROST_API_URL}/txs/${txHash}`, {
+        headers: { 'project_id': blockfrostProjectId }
+      });
+
+      const utxoResponse = await axios.get(`${BLOCKFROST_API_URL}/txs/${txHash}/utxos`, {
+        headers: { 'project_id': blockfrostProjectId }
+      });
+
+      // Step 4: Verify payment recipient and amount
+      const targetOutput = utxoResponse.data.outputs.find(
+        output => output.address === developerAddress
+      );
+
+      if (!targetOutput) {
+        return res.status(401).json({ error: "Unauthorized", message: "Transaction did not pay the designated address." });
+      }
+
+      const amountPaid = parseInt(targetOutput.amount.find(a => a.unit === 'lovelace').quantity);
+      if (amountPaid < priceLovelaces) {
+        return res.status(401).json({ error: "Unauthorized", message: "Insufficient payment amount." });
+      }
+
+      // Step 5: Mark tx as spent in cache
+      await spentCache.set(txHash, true);
+      
+      // Verification successful, forward to endpoint
+      next();
+    } catch (err) {
+      console.error("Payment validation failed:", err.message);
+      return res.status(401).json({ error: "Unauthorized", message: "Invalid payment transaction." });
+    }
+  };
+};
+```
+
+---
+
+## 10. The Visual Playground (SolDiff-Style Interface)
+
+To showcase this protocol at the hackathon, we will build a premium front-end dashboard split into two primary viewports:
+
+### A. The Client Sandbox (Left Column)
+- **URL Call Console:** A mock browser address bar pointing to `https://api.c402.dev/v1/generate-code`.
+- **Request Trigger:** Clicking "Call API" triggers the request.
+- **Header Monitor:** Displays raw HTTP request and response headers. Users will see the `402 Payment Required` response header flash in red.
+- **Pay Button:** Prompts a pop-up to sign the transaction. Clicking it simulates a wallet signature (minting a transaction hash).
+- **Auto-retry:** The client automatically attaches the `Authorization: Bearer <tx_hash>` header, calls the API again, and outputs the result in a code block.
+
+### B. The Gateway Monitor (Right Column)
+- **Network Feed:** A live scroll of incoming requests.
+- **Redis Cache Log:** Shows lists of `Spent Tx Hashes` to visualize the replay protection.
+- **Cardano Node Connection:** Shows block height, sync status, and verification latency (e.g., `Verification Time: 860ms via Mempool`).
