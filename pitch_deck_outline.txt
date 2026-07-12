@@ -1,0 +1,46 @@
+📊 C402 PITCH DECK SLIDES OUTLINE (5 PAGES)
+
+Copy and paste this outline directly into Gamma (gamma.app), Tome (tome.app), or ChatGPT to generate your presentation slides:
+
+================================================================================
+SLIDE 1: Title & The Vision
+================================================================================
+* Title: C402: Cardano Pay-Per-Request Gateway
+* Subtitle: Micropayments for microservices and AI inferences
+* Core Concept: Transitioning from high-overhead monthly SaaS commitments to instant, utility-based Lovelace billing.
+* Key Aesthetics: Clean gold-cyberpunk, high-contrast, premium interface.
+* Slide Graphics: Visual illustration of ADA coin transaction flowing into an API gateway node.
+
+================================================================================
+SLIDE 2: The Core Problem
+================================================================================
+* Title: Centralized SaaS Subscriptions Fail Developers
+* Quota Waste: Monthly subscription packages force developers to pay for unused quotas.
+* Payment Friction: Mandatory credit card integrations restrict global, permissionless developer API access.
+* Complexity: Writing custom Cardano payment checks and transaction verification scripts from scratch is slow and prone to errors.
+
+================================================================================
+SLIDE 3: The Gateway Solution
+================================================================================
+* Title: Intercepting HTTP 402 Proxy Loop
+* Micropayment Protocol: Automatically intercepts queries and demands Lovelaces via custom HTTP headers (address, price, reference seed).
+* Wallet Interface: Integrates with CIP-30 web wallets (Lace, Eternl) to sign transaction authorization tokens.
+* Replay Protection: In-memory double-spend validator cache tracks transaction usage and blocks replay attacks instantly.
+
+================================================================================
+SLIDE 4: Technical Architecture
+================================================================================
+* Title: Under the Hood: C402 Pipeline
+* Frontend Portal: React 18 & Vite glassmorphic control dashboard containing developer Console, Docs, and Sandbox.
+* Backend Gateway: Node/Express proxy middleware validating client transaction hashes.
+* Smart Contract: Aiken validator script confirming payout addresses and signatures on-chain.
+* AI Verification logs: Llama-3.3-70b AI model (Cerebras API) auditing confirmation clearances.
+
+================================================================================
+SLIDE 5: Market Opportunity & Roadmap
+================================================================================
+* Title: Micropayment Monetization & Milestones
+* Main Target: Pay-per-prompt AI completions, blockchain data indexing, pay-per-search web scrapers.
+* Developer SDK: Pluggable npm gateway package enabling zero-friction route protection.
+* Future Roadmap: Support for multi-asset CNT stablecoins (USDA, DJED) and zero-dependency client transaction serialization scripts.
+================================================================================
