@@ -7,12 +7,36 @@ import {
   SplitText, 
   Magnet 
 } from '../components/ReactBitsComponents';
+import Strands from '../components/Strands';
 
 export default function Overview({ setCurrentPage }) {
   return (
     <>
       {/* Hero Section */}
       <section className="border-bottom-layout" style={{ position: 'relative', overflow: 'hidden' }}>
+        {/* WebGL Strands Procedural Wave Animation Background */}
+        <div style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '100%', zIndex: 1, pointerEvents: 'none' }}>
+          <Strands
+            colors={["#ffde03","#7C3AED","#06B6D4"]}
+            count={3}
+            speed={0.4}
+            amplitude={1.2}
+            waviness={1.0}
+            thickness={0.8}
+            glow={2.5}
+            taper={3}
+            spread={1.2}
+            intensity={0.6}
+            saturation={2}
+            opacity={0.35}
+            scale={1.3}
+            glass={false}
+            refraction={1}
+            dispersion={1}
+            glassSize={1}
+            hueShift={0}
+          />
+        </div>
         <div className="container-custom" style={{ paddingTop: '80px', paddingBottom: '80px', textAlign: 'center', position: 'relative', zIndex: 2 }}>
           
           <div style={{ display: 'inline-flex', alignItems: 'center', gap: '8px', backgroundColor: 'rgba(255,255,255,0.03)', border: '1px solid var(--border-color)', padding: '6px 12px', borderRadius: '99px', marginBottom: '24px' }}>
