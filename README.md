@@ -1,16 +1,5 @@
 <a id="readme-top"></a>
 
-<!-- PROJECT SHIELDS -->
-<div align="center">
-
-[![Contributors][contributors-shield]][contributors-url]
-[![Forks][forks-shield]][forks-url]
-[![Stargazers][stars-shield]][stars-url]
-[![Issues][issues-shield]][issues-url]
-[![MIT License][license-shield]][license-url]
-
-</div>
-
 <!-- PROJECT LOGO -->
 <br />
 <div align="center">
@@ -73,69 +62,46 @@
 <!-- ABOUT THE PROJECT -->
 ## About The Project
 
-C402 is an HTTP 402 Payment Required middleware protocol designed to address the monetization overhead of web services, APIs, and AI inferences. 
+C402 is an implementation of the HTTP 402 (Payment Required) standard designed for the Cardano blockchain ecosystem. It acts as an intercepting proxy billing gateway that guards pay-per-request API resources, such as machine learning completions or web scraper outputs, demanding micropayments (Lovelaces) before serving client queries.
 
-In traditional API architectures, charging clients fractions of a cent per request is impossible due to flat transaction fee minimums imposed by credit card processors, alongside the developer overhead of building signups, databases, and monthly subscription tiers. 
-
-C402 resolves this billing friction:
-* **Zero Registration:** Clients interact with paid resources peer-to-peer using CIP-30 injected browser wallets (Lace/Eternl) without creating accounts.
-* **Deterministic Micropayments:** Leverages Cardano's constant UTxO execution fees to permit small value transactions (e.g. 0.1 ADA).
-* **Double Spend Protection:** Maintains an Express in-memory verification cache of spent transaction hashes to completely prevent replay attacks.
-* **Mempool Auditing:** Intercepts transaction inputs in the node broadcast queue to verify payments in under 900ms.
-
-<p align="right">(<a href="#readme-top">back to top</a>)</p>
+Key capabilities:
+* **Decentralized Proxy Interception:** Instantly responds with `HTTP 402 Payment Required` headers containing payout addresses, pricing models, and signature challenge references.
+* **Double-Spend Mitigation:** In-memory tracking lists protect developers from replay attacks and multiple reuse of transaction proofs.
+* **Preprod Sync Verification:** Directly queries Cardano ledger mempool state to authorize endpoint execution in milliseconds.
+* **SAT Satisfaction Audio Toggle:** satisfies the Buddhsentripathi-style Centered glassmorphic design theme with Web Audio API click sound toggles.
 
 ### Built With
 
-The project uses the following technology stack:
-
-* **React 18 & Vite** - Frontend client playground and dynamic developer console.
-* **Framer Motion** - Drives premium spring-based micro-interactions, spotlight grids, and text scramblers.
-* **Node.js & Express** - Backend gateway proxy interception middleware.
-* **Axios** - Network client for Blockfrost indexer integrations.
-* **Cardano CIP-30 Standard** - Interacts with browser-injected wallets (Lace, Eternl).
-* **Cerebras AI API** - Integrates Llama-3.3-70b for live code generation.
+* **Vite & React 18:** Lightweight SPA dashboard interface.
+* **Node.js & Express:** Gateway proxy intercepting middleware.
+* **Aiken:** Cardano smart contracts validator.
+* **Framer Motion & Lucide Icons:** Responsive animation layers.
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
 <!-- GETTING STARTED -->
 ## Getting Started
 
-Follow these steps to configure and run the frontend portal and proxy backend gateway locally.
+Follow these steps to run the gateway and sandbox playground locally.
 
 ### Prerequisites
 
-Ensure you have Node.js (version 18 or higher) and npm installed.
-
-* npm
-  ```sh
-  npm install npm@latest -g
-  ```
+* Node.js v18 or later.
+* npm or yarn.
+* Lace Wallet Chrome Extension configured for the Cardano Preprod testnet.
 
 ### Installation
 
 1. Clone the repository:
    ```sh
    git clone https://github.com/Premkumar1845/ProofPair.git
-   ```
-2. Install dependencies in the frontend root directory:
-   ```sh
    cd ProofPair
-   npm install
    ```
-3. Install dependencies in the backend subdirectory:
+2. Install dependencies:
    ```sh
-   cd backend
    npm install
    ```
-4. Create a `.env` configuration file in the `backend/` directory:
-   ```env
-   PORT=8080
-   BLOCKFROST_KEY=your_blockfrost_preprod_project_id
-   PAYOUT_ADDRESS=addr_test1qrf9x2y4u9asqpwldjge937cnu2c7d9bc029ac1bf58cd
-   CEREBRAS_KEY=your_cerebras_api_key
-   ```
-5. Spin up both servers:
+3. Spin up both servers:
    * Run the Express server (`backend/`):
      ```sh
      npm run start
@@ -180,18 +146,9 @@ See the [open issues](https://github.com/Premkumar1845/ProofPair.git/issues) for
 Contributions are welcome. Please adhere to these guidelines:
 
 1. Fork the Project.
-2. Create your Feature Branch:
-   ```sh
-   git checkout -b feature/AmazingFeature
-   ```
-3. Commit your Changes:
-   ```sh
-   git commit -m 'Add some AmazingFeature'
-   ```
-4. Push to the Branch:
-   ```sh
-   git push origin feature/AmazingFeature
-   ```
+2. Create your Feature Branch (`git checkout -b feature/AmazingFeature`).
+3. Commit your changes (`git commit -m 'Add some AmazingFeature'`).
+4. Push to the Branch (`git push origin feature/AmazingFeature`).
 5. Open a Pull Request.
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
@@ -223,15 +180,3 @@ Project Link: [https://github.com/Premkumar1845/ProofPair](https://github.com/Pr
 * [ReactBits Animated Components](https://reactbits.dev)
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
-
-<!-- MARKDOWN LINKS & IMAGES -->
-[contributors-shield]: https://img.shields.io/github/contributors/Premkumar1845/ProofPair.svg?style=for-the-badge
-[contributors-url]: https://github.com/Premkumar1845/ProofPair/graphs/contributors
-[forks-shield]: https://img.shields.io/github/forks/Premkumar1845/ProofPair.svg?style=for-the-badge
-[forks-url]: https://github.com/Premkumar1845/ProofPair/network/members
-[stars-shield]: https://img.shields.io/github/stars/Premkumar1845/ProofPair.svg?style=for-the-badge
-[stars-url]: https://github.com/Premkumar1845/ProofPair/stargazers
-[issues-shield]: https://img.shields.io/github/issues/Premkumar1845/ProofPair.svg?style=for-the-badge
-[issues-url]: https://github.com/Premkumar1845/ProofPair/issues
-[license-shield]: https://img.shields.io/github/license/Premkumar1845/ProofPair.svg?style=for-the-badge
-[license-url]: https://github.com/Premkumar1845/ProofPair/blob/master/LICENSE
