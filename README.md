@@ -25,12 +25,6 @@
 
 * **Presentation:** https://drive.google.com/drive/folders/1BoKdu_fDpn0qHoszn8SbSdppP0XQ72iT?usp=sharing
 
-### 💡 Cardano Transaction Hashes for Judges
-To verify the gateway proxy mempool check and double-spend cache without executing a live Cardano transfer:
-
-1. Paste it into the **"Or Paste Test Cardano Tx Hash Manually"** input field inside the Sandbox playground challenge modal.
-2. Trigger **Call Protected API** — the gateway will check the hash, log the double-spend clearance status, and request the Cerebras AI inference.
-
 ---
 
 <!-- TABLE OF CONTENTS -->
