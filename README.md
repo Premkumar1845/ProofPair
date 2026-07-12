@@ -15,7 +15,7 @@
     <a href="https://github.com/Premkumar1845/ProofPair.git"><strong>Explore the docs »</strong></a>
     <br />
     <br />
-    <a href="http://localhost:5174">View Demo</a>
+    <a href="https://drive.google.com/drive/folders/1dghSpZDKvYgrfFe1V5ZJHGW_5xFdT0cK?usp=sharing">View Demo</a>
     &middot;
     <a href="https://github.com/Premkumar1845/ProofPair.git/issues">Report Bug</a>
     &middot;
@@ -24,6 +24,7 @@
 </div>
 
 * **Presentation:** https://drive.google.com/drive/folders/1BoKdu_fDpn0qHoszn8SbSdppP0XQ72iT?usp=sharing
+* **Video Walkthrough:** https://drive.google.com/drive/folders/1dghSpZDKvYgrfFe1V5ZJHGW_5xFdT0cK?usp=sharing
 
 ---
 
